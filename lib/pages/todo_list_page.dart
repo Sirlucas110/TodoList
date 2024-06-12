@@ -12,20 +12,29 @@ class TodoListPage extends StatefulWidget {
 }
 
 class _TodoListPageState extends State<TodoListPage> {
+
+  //Controlador para o campo de texto
   final TextEditingController todoController = TextEditingController();
+  
+  //Instancia do repositorio de tarefas
   final TodoRepository todoRepository = TodoRepository();
 
+  //Lista de tarefas
   List<Todo> todos = [];
 
+  //Variáveis para armazenar a tarefa deletada e sua posição
   Todo? deleteTodo;
   int? deletedTodoPos;
 
+  // Texto de erro para o campo de texto
   String? errorText;
 
   @override
   void initState() {
     super.initState();
 
+
+    // Carrega a lista de tarefas do repositório
     todoRepository.getTodoList().then((value) {
       setState(() {
         todos = value;
@@ -67,6 +76,7 @@ class _TodoListPageState extends State<TodoListPage> {
                       onPressed: () {
                         String text = todoController.text;
 
+                        //Verifica se o texto está vazio
                         if(text.isEmpty){
                           setState(() {
                            errorText = 'O titulo não pode ser vazio!';
@@ -74,7 +84,7 @@ class _TodoListPageState extends State<TodoListPage> {
                           return;
                         }
 
-
+                        //Adiciona a nova tarefa à lista
                         setState(() {
                           Todo newTodo = Todo(
                             title: text,
@@ -84,7 +94,7 @@ class _TodoListPageState extends State<TodoListPage> {
                           errorText = null;
                         });
                         todoController.clear();
-                        todoRepository.saveTodoList(todos); //salva quando adiciona nova todo
+                        todoRepository.saveTodoList(todos); //salva a lista no repositorio
                       },
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Color.fromRGBO(33, 101, 248, 1),
@@ -112,6 +122,7 @@ class _TodoListPageState extends State<TodoListPage> {
                   ),
                 ),
                 SizedBox(height: 16),
+                // Contagem de tarefas pendentes e botão para deletar todas
                 Row(
                   children: [
                     Expanded(
@@ -119,6 +130,7 @@ class _TodoListPageState extends State<TodoListPage> {
                           Text("Você possui ${todos.length} tarefas pendentes"),
                     ),
                     SizedBox(width: 8),
+                    // botão de deletar tudo
                     ElevatedButton(
                       onPressed: showDeleteTodosConfirmationDialog,
                       style: ElevatedButton.styleFrom(
@@ -139,6 +151,8 @@ class _TodoListPageState extends State<TodoListPage> {
     );
   }
 
+  // Função chamada ao deletar uma tarefa
+
   void onDelete(Todo todo) {
     deleteTodo = todo;
     deletedTodoPos = todos.indexOf(todo);
@@ -149,7 +163,7 @@ class _TodoListPageState extends State<TodoListPage> {
 
     todoRepository.saveTodoList(todos);
 
-
+    // Mostra uma SnackBar para desfazer a exclusão
     ScaffoldMessenger.of(context).clearSnackBars();
     ScaffoldMessenger.of(context).showSnackBar(SnackBar(
       content: Text('Tarefa ${todo.title} foi removido com sucesso!',
@@ -171,6 +185,7 @@ class _TodoListPageState extends State<TodoListPage> {
     );
   }
 
+  // Mostra um diálogo de confirmação para deletar todas as tarefas
   void showDeleteTodosConfirmationDialog() {
     showDialog(
         context: context,
@@ -199,6 +214,7 @@ class _TodoListPageState extends State<TodoListPage> {
           );
         }
 
+     // Função para deletar todas as tarefas
     void deleteAllToos(){
       setState(() {
         todos.clear();
